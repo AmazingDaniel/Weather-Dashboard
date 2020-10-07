@@ -210,7 +210,6 @@
                 });
             }
 
-
             function addToList(t) {
                 var taskEl = $("<li>" + t.toUpperCase() + "</li>");
                 $(taskEl).attr("class", "list-group-item");
@@ -224,7 +223,6 @@
                     townZ = liEl.textContent.trim();
                     currentWeather(townZ);
                 }
-
             }
 
             function find(t) {
@@ -236,7 +234,6 @@
                 }
                 return 1;
             }
-
 
             function pastHistory() {
                 $("ul").empty();
