@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Weather Dashboard</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+            integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="style.css">
+    </head>
+
+    <body>
+        <div class="jumbotron container-fluid;">
+            <h1>Weather Dashboard</h1>
+        </div>
+        <div class="container">
+
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>Search for a City:</h5>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" id="searchCity">
+                        <div class="input-group-append">
+                            <button class=" btn bg-primary" id="exploreButton"><i
+                                    class="fa fa-search"></i></button>
+                        </div>
+                    </div>
+                    <ul class="list-group"></ul>
+                </div>
+                <div class="col-md-8">
+                    <div class="row border">
+                        <div class="col-md-12">
+                            <h2 class="city bolder" id="town"></h2>
+                            <p>Temperature:
+                            <p id="temperature"></p>
+                            </p>
+                            <p>Humidity:
+                            <p id="humidity"></p>
+                            </p>
+                            <p>Wind Speed:
+                            <p id="speed"></p>
+                            </p>
+                            <p>UV index:
+                            <p id="uvIIndex"></p>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <h3>5-Day Forecast:</h3>
+                        <div class="row">
+                            <div class="col-md-2 bg-primary">
+                                <p id="date0"></p>
+                                <p id="pic0"></p>
+                                <p>Humidity:
+                                <p id="wet0"></p>
+                                </p>
+                                <p>Temp:
+                                <p id="temp0"></p>
+                                </p>
+                            </div>
+                            <div class="col-md-2 bg-primary">
+                                <p id="date1"></p>
+                                <p id="pic1"></p>
+                                <p>Humidity:
+                                <p id="wet1"></p>
+                                </p>
+                                <p>Temp:
+                                <p id="temp1"></p>
+                                </p>
+                            </div>
+                            <div class="col-md-2 bg-primary">
+                                <p id="date2"></p>
+                                <p id="pic2"></p>
+                                <p>Humidity:
+                                <p id="wet2"></p>
+                                </p>
+                                <p>Temp:
+                                <p id="temp2"></p>
+                                </p>
+                            </div>
+                            <div class="col-md-2 bg-primary">
+                                <p id="date3"></p>
+                                <p id="pic3"></p>
+                                <p>Humidity:
+                                <p id="wet3"></p>
+                                </p>
+                                <p>Temp:
+                                <p id="temp3"></p>
+                                </p>
+                            </div>
+                            <div class="col-md-2 bg-primary">
+                                <p id="date4"></p>
+                                <p id="pic4"></p>
+                                <p>Humidity:
+                                <p id="wet4"></p>
+                                </p>
+                                <p>Temp:
+                                <p id="temp4"></p>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>  
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.0/moment.min.js"></script>
+        <script>
+            var searchButton = $("#exploreButton");
+            var nowTown = $("#town");
+            var nowUV = $("#uvIIndex");
+            var nowWet = $("#humidity");
+            var finderCity = $("#searchCity");
+            var nowTemp = $("#temperature");
+            var nowSpeed = $("#speed");
+            var town2 = [];
+            var townz = "";
+            var APIKey = "d4c64e8f123b8639ceb51c264be09d67";
+
+            function stormLook(event) {
+                event.preventDefault();
+                if (finderCity.val().trim() !== "") {
+                    townZ = finderCity.val().trim();
+                    currentWeather(townZ);
+                }
+            }
+
+            $("#exploreButton").on("click", stormLook);
+            $(window).on("load", pastHistory);
+            $(document).on("click", history);
+
+            function currentWeather(townZ) {
+                var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + townZ + "&appid=" + APIKey;
+                $.ajax({
+                    url: queryURL,
+                    method: "GET",
+                }).then(function (response) {
+                    var symbolWeather = response.weather[0].icon;
+                    var symbolURL = "https://openweathermap.org/img/wn/" + symbolWeather + "@2x.png";
+                    var date = new Date(response.dt * 1000).toLocaleDateString();
+                    var fah = (response.main.temp - 273.15) * 1.80 + 32;
+                    var speedWind = response.wind.speed;
+                    var mphSpeed = (speedWind * 2.237).toFixed(1);
+                    $(nowTown).html(response.name + "(" + date + ")" + "<img src=" + symbolURL + ">");
+                    $(nowTemp).html((fah).toFixed(2) + "F");
+                    $(nowWet).html(response.main.humidity + "%");
+                    $(nowSpeed).html(mphSpeed + "MPH");
+
+                    uvKey(response.coord.lon, response.coord.lat);
+                    if (response.cod == 200) {
+                        town2 = JSON.parse(localStorage.getItem("cityname"));
+                        
+                        if (town2 == null) {
+                            town2 = [];
+                            town2.push(townZ.toUpperCase());
+                            localStorage.setItem("cityname", JSON.stringify(town2));
+                            addToList(townZ);
+                        }
+                        else {
+                            if (find(townZ) > 0) {
+                                town2.push(townZ.toUpperCase());
+                                localStorage.setItem("cityname", JSON.stringify(town2));
+                                addToList(townZ);
+                            }
+                        }
+                    }
+                });
+            }
+
+            function uvKey(ln, lt) {
+                var uvURL = "https://api.openweathermap.org/data/2.5/uvi?appid=" + APIKey + "&lat=" + lt + "&lon=" + ln;
+                $.ajax({
+                    url: uvURL,
+                    method: "GET"
+                }).then(function (response) {
+                    $(nowUV).html(response.value);
+                    forecast(finderCity.val())
+                });
+            }
+
+            function forecast(city) {
+                var forecastURL = "https://api.openweathermap.org/data/2.5/forecast?q=" + city + "&appid=" + APIKey;
+                $.ajax({
+                    url: forecastURL,
+                    method: "GET"
+                }).then(function (response) {
+                    var index=0   
+                    var dayArr = response.list
+                    for (i = 0; i < dayArr.length; i++) {
+                        if (dayArr[i].dt_txt.includes("00:00:00")) {
+                            var date =  moment(dayArr[i].dt,"X").format("MM/DD/YYYY")
+                            var symbolNumber = dayArr[i].weather[0].icon;
+                            var symbolURL = "https://openweathermap.org/img/wn/" + symbolNumber + ".png";
+                            var kelvin = dayArr[i].main.temp;
+                            var fah = (((kelvin - 273.5) * 1.80) + 32).toFixed(2);
+                            var humidity = dayArr[i].main.humidity;
+
+                            $("#date" + index).html(date);
+                            $("#pic" + index).html("<img src=" + symbolURL + ">");
+                            $("#temp" + index).html(fah + "F");
+                            $("#wet" + index).html(humidity + "%");
+
+                            index++
+                        }
+                    }
+                });
+            }
+
+
+            function addToList(t) {
+                var taskEl = $("<li>" + t.toUpperCase() + "</li>");
+                $(taskEl).attr("class", "list-group-item");
+                $(taskEl).attr("data-value", t.toUpperCase());
+                $(".list-group").append(taskEl);
+            }
+
+            function history(event) {
+                var liEl = event.target;
+                if (event.target.matches("li")) {
+                    townZ = liEl.textContent.trim();
+                    currentWeather(townZ);
+                }
+
+            }
+
+            function find(t) {
+                console.log(t)
+                for (var i = 0; i < town2.length; i++) {
+                    if (t.toUpperCase() === town2[i]) {
+                        return -1;
+                    }
+                }
+                return 1;
+            }
+
+
+            function pastHistory() {
+                $("ul").empty();
+                var town2 = JSON.parse(localStorage.getItem("cityname"));
+                if (town2 !== null) {
+                    town2 = JSON.parse(localStorage.getItem("cityname"));
+                    for (i = 0; i < town2.length; i++) {
+                        addToList(town2[i]);
+                    }
+                    townZ = town2[i - 1];
+                    currentWeather(townZ);
+                    forecast(town2)
+                }
+            }
+        </script>
+    </body>
+</html>

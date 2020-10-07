@@ -1,0 +1,18 @@
+.bg-primary{
+    background-color: blue;
+    color: white;
+    margin-left: 5px;
+}
+
+.jumbotron{
+    background-color: grey;
+    color: honeydew;
+    text-align: center;
+}
+
+#uvIIndex{ 
+  background-color: red;
+  color: white
+
+
+}
